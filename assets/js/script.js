@@ -1,19 +1,9 @@
-document.body.addEventListener('keyup', (event) => {
-    playSound(event.code.toLocaleLowerCase());
-});
-
-document.querySelector('.composer button').addEventListener('click', () => {
-    let song = document.querySelector('#input').value;
-
-    if(song !== '') {
-        let songArray = song.split('');
-        playComposition(songArray);
-    }
-})
+c = (el) => document.querySelector(el);
+cs = (el) => document.querySelectorAll(el);
 
 function playSound(sound) {
-    let audioElement = document.querySelector(`#s_${sound}`);
-    let keyElement = document.querySelector(`div[data-key="${sound}"]`);
+    let audioElement = c(`#${sound}`);
+    let keyElement = c(`div[data-key="${sound}"]`);
 
     if(audioElement) {
         audioElement.currentTime = 0;
@@ -25,16 +15,34 @@ function playSound(sound) {
         setTimeout(() => {
             keyElement.classList.remove('active');
         }, 200);
+    }    
+}
+
+function playComposition(event) {
+    event.preventDefault();
+
+    let input = c('input').value;
+
+    if (input != '') {
+        let composition = input.split('');
+        let wait = 0;
+        composition.map((item) => {
+            setTimeout(() => {
+                playSound(`key${item}`);
+            }, wait);
+
+            wait += 300;
+        })
     }
 }
 
-function playComposition(Composition) {
-    let wait = 0;
-    for(let songItem of Composition) {
-        setTimeout(() => {
-            playSound(`key${songItem}`);
-        }, wait)
+document.addEventListener('keyup', (event) => {
+    playSound(event.code.toLocaleLowerCase());
+});
 
-        wait += 250;
-    }
-}
+c('form').addEventListener('submit', playComposition);
+
+cs('.key').forEach((item) => {
+    let key = item.getAttribute('data-key');
+    item.addEventListener('click', () => playSound(key));
+});
